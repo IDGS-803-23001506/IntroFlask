@@ -2,6 +2,7 @@ from flask import Flask, flash, render_template, request
 from flask_wtf.csrf import CSRFProtect
 
 import forms
+import formsCine
 
 app = Flask(__name__)
 
@@ -105,6 +106,32 @@ def resultado():
     elif request.form.get('operacion') =='division':
         resultado=float(n1)/float(n2)
     return f"<h1>El resultado es {resultado}</h1>"
+
+
+@app.route ('/cinepolis', methods=['GET', 'POST'])
+def cinepolis():
+    nom=''
+    com=0
+    tar=''
+    bol=0
+    val=0
+    total=0
+    cinepolis_class=formsCine.cineForm(request.form)
+    if request.method=='POST' and cinepolis_class.validate():
+        nom=cinepolis_class.nombre.data
+        com=cinepolis_class.cCompradores.data
+        tar=cinepolis_class.tarjeta.data
+        bol=cinepolis_class.cBoletas.data
+    val = bol * 12
+    if bol < 5:
+        total = val * 0.85
+    if bol == 3 or bol== 4 or bol == 5:
+        total = val * 0.90
+    if tar == 'si':
+        total = total * .90
+    return render_template('cinepolis.html', form=cinepolis_class,
+                           nom=nom,com=com,tar=tar,bol=bol,total=total)
+
 
 if __name__ == '__main__':
     csrf.init_app(app)
